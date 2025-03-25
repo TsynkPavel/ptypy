@@ -9,6 +9,7 @@ This file is part of the PTYPY package.
     :platform: Unix
     :synopsis: utilities for the test framework
 """
+
 import inspect
 import shutil
 import os
@@ -21,32 +22,47 @@ from ptypy.utils import parallel
 
 def get_test_data_path(name):
     path = inspect.stack()[0][1]
-    return '/'.join(os.path.split(path)[0].split(os.sep)[:-2] +
-                    ['test_data/', name,'/'])
+    return "/".join(
+        os.path.split(path)[0].split(os.sep)[:-2] + ["test_data/", name, "/"]
+    )
 
 
-def PtyscanTestRunner(ptyscan_instance, data_params, save_type='append', auto_frames=20, ncalls=1, cleanup=True):
-        u.verbose.set_level(3)
-        out_dict = {}
-        outdir = tempfile.mkdtemp()
-        data_params.dfile = '%s/prep.h5' % outdir
-        out_dict['output_file'] = data_params.dfile
-        data_params.save = save_type
-        a = ptyscan_instance(data_params)
-        a.initialize()
-        out_dict['msgs'] = []
-        i=0
-        while i<ncalls:
-            out_dict['msgs'].append(a.auto(auto_frames))
-            i+=1
-        if cleanup:
-            shutil.rmtree(outdir)
-        return out_dict
+def PtyscanTestRunner(
+    ptyscan_instance,
+    data_params,
+    save_type="append",
+    auto_frames=20,
+    ncalls=1,
+    cleanup=True,
+):
+    u.verbose.set_level(3)
+    out_dict = {}
+    outdir = tempfile.mkdtemp()
+    data_params.dfile = "%s/prep.h5" % outdir
+    out_dict["output_file"] = data_params.dfile
+    data_params.save = save_type
+    a = ptyscan_instance(data_params)
+    a.initialize()
+    out_dict["msgs"] = []
+    i = 0
+    while i < ncalls:
+        out_dict["msgs"].append(a.auto(auto_frames))
+        i += 1
+    if cleanup:
+        shutil.rmtree(outdir)
+    return out_dict
 
 
-def EngineTestRunner(engine_params,propagator='farfield',output_path='./', output_file=None,
-                    autosave=True, scanmodel="Full", verbose_level="info", init_correct_probe=False):
-
+def EngineTestRunner(
+    engine_params,
+    propagator="farfield",
+    output_path="./",
+    output_file=None,
+    autosave=True,
+    scanmodel="Full",
+    verbose_level="info",
+    init_correct_probe=False,
+):
     p = u.Param()
     p.verbose_level = verbose_level
     p.io = u.Param()
@@ -61,7 +77,7 @@ def EngineTestRunner(engine_params,propagator='farfield',output_path='./', outpu
     p.scans.MF.name = scanmodel
     p.scans.MF.propagation = propagator
     p.scans.MF.data = u.Param()
-    p.scans.MF.data.name = 'MoonFlowerScan'
+    p.scans.MF.data.name = "MoonFlowerScan"
     p.scans.MF.data.num_frames = 200
     p.scans.MF.data.shape = 64
     p.scans.MF.data.save = None
@@ -75,7 +91,7 @@ def EngineTestRunner(engine_params,propagator='farfield',output_path='./', outpu
     p.engines.engine00 = engine_params
     P = Ptycho(p, level=4)
     if init_correct_probe:
-        P.probe.S['SMFG00'].data[0] = P.model.scans['MF'].ptyscan.pr
+        P.probe.S["SMFG00"].data[0] = P.model.scans["MF"].ptyscan.pr
     P.run()
 
     # important for subdividing data, ensure a fresh start if a test will be
@@ -85,9 +101,16 @@ def EngineTestRunner(engine_params,propagator='farfield',output_path='./', outpu
     return P
 
 
-def EngineTestRunner2(engine_params,propagator='farfield',output_path='./', output_file=None,
-                    autosave=True, scanmodel="Full", verbose_level="info", init_correct_probe=False):
-
+def EngineTestRunner2(
+    engine_params,
+    propagator="farfield",
+    output_path="./",
+    output_file=None,
+    autosave=True,
+    scanmodel="Full",
+    verbose_level="info",
+    init_correct_probe=False,
+):
     p = u.Param()
     p.verbose_level = verbose_level
     p.io = u.Param()
@@ -124,20 +147,20 @@ def EngineTestRunner2(engine_params,propagator='farfield',output_path='./', outp
     sim.illumination.propagation.spot_size = None
 
     sim.sample = u.Param()
-    sim.sample.model = u.xradia_star((1000,1000),minfeature=3,contrast=0.0)
+    sim.sample.model = u.xradia_star((1000, 1000), minfeature=3, contrast=0.0)
     sim.sample.process = u.Param()
-    sim.sample.process.offset = (100,100)
+    sim.sample.process.offset = (100, 100)
     sim.sample.process.zoom = 1.0
     sim.sample.process.formula = "Au"
     sim.sample.process.density = 19.3
     sim.sample.process.thickness = 2000e-9
     sim.sample.process.ref_index = None
     sim.sample.process.smoothing = None
-    sim.sample.fill = 1.0+0.j
+    sim.sample.fill = 1.0 + 0.0j
 
-    sim.detector = 'GenericCCD32bit'
+    sim.detector = "GenericCCD32bit"
     sim.verbose_level = 1
-    sim.psf = 1. # emulates partial coherence
+    sim.psf = 1.0  # emulates partial coherence
     sim.plot = False
 
     # Scan model and initial value parameters
@@ -148,22 +171,22 @@ def EngineTestRunner2(engine_params,propagator='farfield',output_path='./', outp
     p.scans.scan00.coherence.num_probe_modes = 1
     p.scans.scan00.coherence.num_object_modes = 1
     p.scans.scan00.sample = u.Param()
-    p.scans.scan00.sample.model = 'stxm'
-    p.scans.scan00.sample.process =  None
+    p.scans.scan00.sample.model = "stxm"
+    p.scans.scan00.sample.process = None
     p.scans.scan00.propagation = propagator
 
     # (copy the simulation illumination and change specific things)
     p.scans.scan00.illumination = sim.illumination.copy(99)
     if not init_correct_probe:
-        p.scans.scan00.illumination.aperture.form = 'circ'
+        p.scans.scan00.illumination.aperture.form = "circ"
         p.scans.scan00.illumination.propagation.focussed = 0.06
         p.scans.scan00.illumination.diversity = u.Param()
         p.scans.scan00.illumination.diversity.power = 0.1
-        p.scans.scan00.illumination.diversity.noise = (np.pi,3.0)
+        p.scans.scan00.illumination.diversity.noise = (np.pi, 3.0)
 
     # Scan data (simulation) parameters
     p.scans.scan00.data = u.Param()
-    p.scans.scan00.data.name = 'SimScan'
+    p.scans.scan00.data.name = "SimScan"
     p.scans.scan00.data.update(sim)
     p.scans.scan00.data.save = None
     p.engines = u.Param()

@@ -1,0 +1,12 @@
+python-telegram-bot
+numpy
+scipy
+matplotlib
+h5py
+pyzmq
+mpi4py
+pillow
+pyfftw
+pyyaml
+opencv-python
+cupy
